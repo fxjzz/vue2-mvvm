@@ -53,6 +53,33 @@
           this.$data = options.data;
           this.observers = [];
           this.$methods = options.methods;
+
+          for (let key in this.$data) {
+            //数据代理this.key
+            Object.defineProperty(this, key, {
+              configurable: true,
+              enumerable: true,
+              get: () => {
+                return this.$data[key];
+              },
+              set: (newVal) => {
+                this.$data[key] = newVal;
+              },
+            });
+          }
+          for (let key in this.$methods) {
+            Object.defineProperty(this, key, {
+              configurable: true,
+              enumerable: true,
+              get: () => {
+                return this.$methods[key];
+              },
+              set: (newFn) => {
+                this.$methods[key] = newFn;
+              },
+            });
+          }
+
           observe(this.$data);
           new Compile(this);
         }
@@ -174,6 +201,8 @@
       // setInterval(function () {
       //   vm.$data.age++;
       // }, 1000);
+
+      //vue2中还有直接能通过vm.age++ 实现数据的修改，需要使用数据劫持方法。
     </script>
   </body>
 </html>
