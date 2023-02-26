@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- 模板 -->
+    <div>
+      <input type="text" v-model="message" />
+      <p>{{ message }}</p>
+    </div>
+
+    <script>
+      const data = { message: "Hello, world!" };
+
+      // 包装数据对象
+      const wrappedData = new Proxy(data, {
+        get(target, property) {
+          // 返回对应属性的值
+          return target[property];
+        },
+        set(target, property, value) {
+          // 更新对应属性的值
+          target[property] = value; //model已经更改
+          // 触发更新
+          update();
+          return true;
+        },
+      });
+      // 初始化
+      update();
+
+      // 监听 input 元素的变化
+      const inputs = document.querySelectorAll("input[type=text]");
+      inputs.forEach((input) => {
+        const prop = input.getAttribute("v-model");
+        input.addEventListener("input", () => {
+          wrappedData[prop] = input.value;
+        });
+      });
+
+      // 更新view模板中的内容
+      function update() {
+        const inputs = document.querySelectorAll("input[type=text]");
+        inputs.forEach((input) => {
+          const prop = input.getAttribute("v-model"); //得到v-model的值
+          input.value = wrappedData[prop];
+        });
+
+        const el = document.querySelector("p");
+        el.textContent = wrappedData.message;
+      }
+    </script>
+  </body>
+</html>
